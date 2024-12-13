@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+
+    .balance-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+    }
+
+    .balance-label {
+      margin-right: 10px;
+    }
+
+    .balance-box {
+      padding: 10px;
+      font-size: 20px;
+      width: 200px;
+      border: 2px solid #4CAF50;
+      border-radius: 5px;
+      background-color: #333;
+      color: #4CAF50;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Hello, Anon!</h1>
+
+<div class="balance-container">
+  <span class="balance-label">Balance:</span>
+  <input type="text" id="balance" class="balance-box" readonly>
+</div>
+
+<script>
+  // Function to retrieve and display the balance
+  function displayBalance() {
+    const balance = sessionStorage.getItem('balance');
+
+    if (balance) {
+      document.getElementById('balance').value = balance;
+    } else {
+      alert('No balance found. Please login first.');
+      window.location.href = 'index.html'; // Redirect to login page
+    }
+  }
+
+  // Execute the function on page load
+  window.addEventListener('load', displayBalance);
+</script>
+
+</body>
+</html>
