@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Page</title>
+    <style>
+        /* Style for the container holding the buttons */
+        .button-container {
+            position: fixed;
+            top: 20px; /* Margin from the top */
+            right: 20px; /* Margin from the right */
+            display: flex;
+            gap: 10px; /* Space between buttons */
+        }
+
+        /* Common button styles */
+        .button-container button {
+            background-color: #4CAF50; /* Green background */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        /* Button hover effect */
+        .button-container button:hover {
+            background-color: #45a049;
+        }
+
+        /* Modal backdrop */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal content box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 400px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        /* Close button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* Textbox style */
+        .response-box, .input-box {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Submit button style */
+        .submit-button {
+            background-color: #4CAF50; /* Green background */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Flex container for form elements */
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Button Container -->
+<div class="button-container">
+    <button id="loginBtn">Login</button>
+    <button id="createWalletBtn">Create New Wallet</button>
+</div>
+
+<!-- Create Wallet Modal Structure -->
+<div id="responseModal" class="modal">
+    <div class="modal-content">
+        <span class="close" data-modal="responseModal">&times;</span>
+        <h2>Wallet Created</h2>
+        <input type="text" id="walletValue" class="response-box" readonly>
+    </div>
+</div>
+
+<!-- Login Modal Structure -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close" data-modal="loginModal">&times;</span>
+        <h2>Login</h2>
+        <label for="seedPhrase">Enter Seed Phrase:</label>
+        <div class="form-group">
+            <input type="text" id="seedPhrase" class="input-box" placeholder="Seed Phrase" required>
+            <button id="submitLogin" class="submit-button">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get elements
+    const createWalletBtn = document.getElementById('createWalletBtn');
+    const responseModal = document.getElementById('responseModal');
+    const loginModal = document.getElementById('loginModal');
+    const closeButtons = document.querySelectorAll('.close');
+    const walletValueInput = document.getElementById('walletValue');
+    const loginBtn = document.getElementById('loginBtn');
+    const submitLoginBtn = document.getElementById('submitLogin');
+    const seedPhraseInput = document.getElementById('seedPhrase');
+
+    // Function to open a modal
+    function openModal(modal) {
+        modal.style.display = 'block';
+    }
+
+    // Function to close a modal
+    function closeModal(modal) {
+        modal.style.display = 'none';
+    }
+
+    // Event listeners for close buttons
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modalId = button.getAttribute('data-modal');
+            const modalToClose = document.getElementById(modalId);
+            closeModal(modalToClose);
+        });
+    });
+
+    // Close modals when clicking outside of the modal content
+    window.addEventListener('click', (event) => {
+        if (event.target == responseModal) {
+            closeModal(responseModal);
+        }
+        if (event.target == loginModal) {
+            closeModal(loginModal);
+        }
+    });
+
+    // Event listener for Create New Wallet button
+    createWalletBtn.addEventListener('click', async () => {
+        try {
+            // Send POST request to localhost:8080/create
+            const response = await fetch('http://localhost:8080/user', {
+                method: 'POST',
+                // body: JSON.stringify({}) // Add body if needed
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            // Assuming the response is plain text. Adjust if different.
+            const data = await response.text();
+
+            // Set the value in the textbox
+            walletValueInput.value = data;
+
+            // Show the modal
+            openModal(responseModal);
+        } catch (error) {
+            alert('Error creating wallet: ' + error.message);
+        }
+    });
+
+    // Event listener for Login button
+    loginBtn.addEventListener('click', () => {
+        openModal(loginModal);
+    });
+
+    // Event listener for Submit Login button
+    submitLoginBtn.addEventListener('click', async (e) => {
+        e.preventDefault(); // Prevent default form submission
+
+        const seedPhrase = seedPhraseInput.value.trim();
+
+        if (seedPhrase === "") {
+            alert("Please enter a seed phrase.");
+            return;
+        }
+
+        try {
+            // Send GET request to localhost:8080/user with seed phrase as query parameter
+            const response = await fetch(`http://localhost:8080/user?seed=${seedPhrase}`, {
+                method: 'GET',
+
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            // Assuming the response is plain text. Adjust if different.
+            const data = await response.text();
+
+            // Store the seed phrase and balance in sessionStorage
+            sessionStorage.setItem('seedPhrase', seedPhrase);
+            sessionStorage.setItem('balance', data); // Assuming 'data' is the balance
+
+            // Redirect to the dashboard page
+            window.location.href = 'dashboard.html';
+
+            // Optionally, you can close the modal here if not redirecting
+            // closeModal(loginModal);
+
+            // Clear the input field
+            seedPhraseInput.value = '';
+        } catch (error) {
+            alert('Error during login: ' + error.message);
+        }
+    });
+
+    // Clear sessionStorage when the window is closed or reloaded
+    /*window.addEventListener('beforeunload', () => {
+        sessionStorage.removeItem('seedPhrase');
+        sessionStorage.removeItem('balance');
+    });*/
+
+    // Optional: Check if seed phrase is stored and perform actions accordingly
+    window.addEventListener('load', () => {
+        const storedSeed = sessionStorage.getItem('seedPhrase');
+        if (storedSeed) {
+            console.log('Seed Phrase is stored in sessionStorage:', storedSeed);
+            // You can perform additional actions here, like redirecting the user
+        }
+    });
+</script>
+
+</body>
+</html>

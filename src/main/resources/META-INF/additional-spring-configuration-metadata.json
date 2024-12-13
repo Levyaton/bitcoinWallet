@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "netowrk",
+      "type": "java.lang.String",
+      "description": "Description for netowrk."
+  }
+] }
